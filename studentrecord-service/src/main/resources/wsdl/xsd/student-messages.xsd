@@ -135,6 +135,26 @@
     </xs:complexType>
   </xs:element>
 
+  <!-- RIVERTON FORK: not present on master. See docs/FORKS.md. -->
+  <xs:element name="getRivertonResidencyStatusRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="customerCode" type="sc:CustomerCode"/>
+        <xs:element name="studentId"    type="sc:StudentId"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="getRivertonResidencyStatusResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="studentId"           type="sc:StudentId"/>
+        <xs:element name="residencyIndicator"  type="xs:string"/>
+        <xs:element name="residencyReviewedOn" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <!-- ===================== fault ========================= -->
   <xs:element name="studentServiceFault" type="sc:StudentServiceFaultType"/>
 

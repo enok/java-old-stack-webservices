@@ -55,6 +55,8 @@
           <xs:element name="rivertonCampusId"     type="xs:string"/>
           <xs:element name="advisorNetworkId"     type="xs:string" minOccurs="0"/>
           <xs:element name="residencyIndicator"   type="xs:string" minOccurs="0"/>
+          <!-- RIVERTON FORK: extra element, not present on master. -->
+          <xs:element name="residencyReviewedOn" type="xs:string" minOccurs="0"/>
           <xs:element name="legacyBannerPidm"     type="xs:string" minOccurs="0"/>
         </xs:sequence>
       </xs:extension>

@@ -65,6 +65,14 @@
     <wsdl:part name="parameters" element="sm:getSummitDegreeAuditResponse"/>
   </wsdl:message>
 
+  <!-- RIVERTON FORK -->
+  <wsdl:message name="getRivertonResidencyStatusRequest">
+    <wsdl:part name="parameters" element="sm:getRivertonResidencyStatusRequest"/>
+  </wsdl:message>
+  <wsdl:message name="getRivertonResidencyStatusResponse">
+    <wsdl:part name="parameters" element="sm:getRivertonResidencyStatusResponse"/>
+  </wsdl:message>
+
   <wsdl:message name="StudentServiceFault">
     <wsdl:part name="fault" element="sm:studentServiceFault"/>
   </wsdl:message>
@@ -105,6 +113,13 @@
       <wsdl:input  name="getSummitDegreeAuditRequest"  message="tns:getSummitDegreeAuditRequest"/>
       <wsdl:output name="getSummitDegreeAuditResponse" message="tns:getSummitDegreeAuditResponse"/>
       <wsdl:fault  name="StudentServiceFault"          message="tns:StudentServiceFault"/>
+    </wsdl:operation>
+
+    <!-- RIVERTON FORK: an operation that exists only on this branch. -->
+    <wsdl:operation name="getRivertonResidencyStatus">
+      <wsdl:input  name="getRivertonResidencyStatusRequest"  message="tns:getRivertonResidencyStatusRequest"/>
+      <wsdl:output name="getRivertonResidencyStatusResponse" message="tns:getRivertonResidencyStatusResponse"/>
+      <wsdl:fault  name="StudentServiceFault"                message="tns:StudentServiceFault"/>
     </wsdl:operation>
 
   </wsdl:portType>
@@ -156,6 +171,16 @@
       <soap:operation soapAction="urn:campusconnect:sis:getSummitDegreeAudit" style="document"/>
       <wsdl:input  name="getSummitDegreeAuditRequest"><soap:body use="literal"/></wsdl:input>
       <wsdl:output name="getSummitDegreeAuditResponse"><soap:body use="literal"/></wsdl:output>
+      <wsdl:fault  name="StudentServiceFault">
+        <soap:fault name="StudentServiceFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+
+    <!-- RIVERTON FORK -->
+    <wsdl:operation name="getRivertonResidencyStatus">
+      <soap:operation soapAction="urn:campusconnect:sis:getRivertonResidencyStatus" style="document"/>
+      <wsdl:input  name="getRivertonResidencyStatusRequest"><soap:body use="literal"/></wsdl:input>
+      <wsdl:output name="getRivertonResidencyStatusResponse"><soap:body use="literal"/></wsdl:output>
       <wsdl:fault  name="StudentServiceFault">
         <soap:fault name="StudentServiceFault" use="literal"/>
       </wsdl:fault>

@@ -59,6 +59,8 @@ public class RivertonStudentMapper {
         d.setAdvisorNetworkId(s.getAdvisorNetworkId());
         d.setResidencyIndicator(s.getResidencyIndicator());
         d.setLegacyBannerPidm(s.getLegacyBannerPidm());
+        // RIVERTON FORK: extra field, has no column on master.
+        d.setResidencyReviewedOn(DateFormats.formatQuietly(DateFormats.RIVERTON, s.getDateOfBirth()));
 
         return d;
     }
