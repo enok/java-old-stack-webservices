@@ -29,6 +29,8 @@ import com.campusconnect.sis.ws.messages.FindStudentsByTermRequest;
 import com.campusconnect.sis.ws.messages.FindStudentsByTermResponse;
 import com.campusconnect.sis.ws.messages.GetAdvisingHoldsRequest;
 import com.campusconnect.sis.ws.messages.GetAdvisingHoldsResponse;
+import com.campusconnect.sis.ws.messages.GetSummitTranscriptFragmentRequest;
+import com.campusconnect.sis.ws.messages.GetSummitTranscriptFragmentResponse;
 import com.campusconnect.sis.ws.messages.GetStudentRequest;
 import com.campusconnect.sis.ws.messages.GetStudentResponse;
 import com.campusconnect.sis.ws.messages.GetSummitDegreeAuditRequest;
@@ -301,6 +303,60 @@ public class StudentRecordEndpointImpl implements StudentRecordPortType {
         // SMELL #4: a static SimpleDateFormat, called from a CXF worker thread.
         response.setGeneratedOn(DateFormats.formatQuietly(DateFormats.SUMMIT, new Date()));
 
+        return response;
+    }
+
+    // -----------------------------------------------------------------------
+    // getSummitTranscriptFragment  (SUMMIT only)  -- SUMMIT FORK
+    // -----------------------------------------------------------------------
+    /**
+     * SMELL #1 + SMELL #2(b): another institution-only operation, and the
+     * payload is XML built by string concatenation rather than marshalled.
+     * Added on this branch for SUMMIT and never merged back to master.
+     */
+    public GetSummitTranscriptFragmentResponse getSummitTranscriptFragment(
+            GetSummitTranscriptFragmentRequest parameters) throws StudentServiceFault {
+
+        String customerCode = parameters.getCustomerCode() == null
+                ? null : parameters.getCustomerCode().value();
+
+        if (!CustomerCodes.SUMMIT.equals(customerCode)) {
+            StudentServiceFaultType info = new StudentServiceFaultType();
+            info.setFaultCode("SIS-4005");
+            info.setFaultMessage("getSummitTranscriptFragment is not available for " + customerCode);
+            throw new StudentServiceFault("getSummitTranscriptFragment is not available for "
+                    + customerCode, info);
+        }
+
+        Student student;
+        try {
+            student = facade.getStudent(customerCode, parameters.getStudentId(), false);
+        } catch (StudentServiceException sse) {
+            throw toFault(sse);
+        }
+
+        GetSummitTranscriptFragmentResponse response = new GetSummitTranscriptFragmentResponse();
+        response.setStudentId(parameters.getStudentId());
+
+        // TODO: this belongs in ResponseShaper with the rest of the string XML.
+        StringBuffer xml = new StringBuffer();
+        xml.append("<transcriptFragment studentId=\"");
+        xml.append(parameters.getStudentId());
+        xml.append("\" term=\"");
+        xml.append(parameters.getTermCode());
+        xml.append("\">");
+        if (student != null) {
+            xml.append("<catalogYear>");
+            xml.append(student.getSummitCatalogYear());
+            xml.append("</catalogYear>");
+            xml.append("<program>");
+            xml.append(student.getProgramCode());
+            xml.append("</program>");
+        }
+        xml.append("</transcriptFragment>");
+        response.setTranscriptXml(xml.toString());
+
+        response.setGeneratedOn(DateFormats.formatQuietly(DateFormats.SUMMIT, new Date()));
         return response;
     }
 
