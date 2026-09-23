@@ -29,6 +29,8 @@ import com.campusconnect.sis.ws.messages.FindStudentsByTermRequest;
 import com.campusconnect.sis.ws.messages.FindStudentsByTermResponse;
 import com.campusconnect.sis.ws.messages.GetAdvisingHoldsRequest;
 import com.campusconnect.sis.ws.messages.GetAdvisingHoldsResponse;
+import com.campusconnect.sis.ws.messages.GetRivertonResidencyStatusRequest;
+import com.campusconnect.sis.ws.messages.GetRivertonResidencyStatusResponse;
 import com.campusconnect.sis.ws.messages.GetStudentRequest;
 import com.campusconnect.sis.ws.messages.GetStudentResponse;
 import com.campusconnect.sis.ws.messages.GetSummitDegreeAuditRequest;
@@ -300,6 +302,58 @@ public class StudentRecordEndpointImpl implements StudentRecordPortType {
 
         // SMELL #4: a static SimpleDateFormat, called from a CXF worker thread.
         response.setGeneratedOn(DateFormats.formatQuietly(DateFormats.SUMMIT, new Date()));
+
+        return response;
+    }
+
+    // -----------------------------------------------------------------------
+    // getRivertonResidencyStatus  (RIVERTON only)  -- RIVERTON FORK
+    // -----------------------------------------------------------------------
+    /**
+     * SMELL #1: a second institution-only operation bolted onto the shared
+     * contract on this branch and never merged back to master.
+     *
+     * XXX: residency is read from the student row when it is there, and
+     * otherwise guessed from the campus code. Nobody remembers which campuses
+     * were in state when this was written.
+     */
+    public GetRivertonResidencyStatusResponse getRivertonResidencyStatus(
+            GetRivertonResidencyStatusRequest parameters) throws StudentServiceFault {
+
+        String customerCode = parameters.getCustomerCode() == null
+                ? null : parameters.getCustomerCode().value();
+
+        if (!CustomerCodes.RIVERTON.equals(customerCode)) {
+            StudentServiceFaultType info = new StudentServiceFaultType();
+            info.setFaultCode("SIS-4004");
+            info.setFaultMessage("getRivertonResidencyStatus is not available for " + customerCode);
+            throw new StudentServiceFault("getRivertonResidencyStatus is not available for "
+                    + customerCode, info);
+        }
+
+        Student student;
+        try {
+            student = facade.getStudent(customerCode, parameters.getStudentId(), false);
+        } catch (StudentServiceException sse) {
+            throw toFault(sse);
+        }
+
+        GetRivertonResidencyStatusResponse response = new GetRivertonResidencyStatusResponse();
+        response.setStudentId(parameters.getStudentId());
+
+        if (student == null) {
+            response.setResidencyIndicator("UNKNOWN");
+        } else if (student.getResidencyIndicator() != null) {
+            response.setResidencyIndicator(student.getResidencyIndicator());
+        } else if ("RIV-MAIN".equals(student.getCampusCode())) {
+            response.setResidencyIndicator("IN_STATE");
+        } else {
+            response.setResidencyIndicator("OUT_OF_STATE");
+        }
+
+        // SMELL #4: static SimpleDateFormat, called from a CXF worker thread.
+        response.setResidencyReviewedOn(
+                DateFormats.formatQuietly(DateFormats.RIVERTON, new Date()));
 
         return response;
     }
