@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The SUMMIT-only operation. NORTHLAKE and RIVERTON are in the same WSDL and
+  can see this operation in the generated stubs, but calling it returns fault
+  SIS-4003. See docs/FORKS.md.
+-->
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Header>
+    <cc:CampusConnectAuth xmlns:cc="http://campusconnect.example.edu/sis/auth/v1">
+      <cc:Username>summit-registrar</cc:Username>
+      <cc:SharedSecret>REPLACE_ME_NOT_A_REAL_SECRET</cc:SharedSecret>
+    </cc:CampusConnectAuth>
+  </soap:Header>
+  <soap:Body>
+    <sm:getSummitDegreeAuditRequest xmlns:sm="http://campusconnect.example.edu/sis/student/messages/v1">
+      <sm:customerCode>SUMMIT</sm:customerCode>
+      <sm:studentId>S9900771</sm:studentId>
+      <sm:auditCatalogYear>2019-2020</sm:auditCatalogYear>
+    </sm:getSummitDegreeAuditRequest>
+  </soap:Body>
+</soap:Envelope>

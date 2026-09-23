@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Hand-written JAXB external binding file, unchanged since 2014.
+  Passed to wsdl2java with -b. Kept external (rather than inlined in the XSDs)
+  because the XSDs are also shipped to the three institutions verbatim.
+-->
+<jaxb:bindings version="2.1"
+               xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+               xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <jaxb:globalBindings generateIsSetMethod="false"
+                       choiceContentProperty="false"
+                       fixedAttributeAsConstantProperty="false">
+    <!--
+      TODO: uid is a hand-picked constant from 2014. Nobody has bumped it since,
+      so any generated-class change silently breaks serialized sessions in the
+      CampusConnect web monolith (sibling repo java-old-stack-web).
+    -->
+    <jaxb:serializable uid="20140301"/>
+  </jaxb:globalBindings>
+
+</jaxb:bindings>

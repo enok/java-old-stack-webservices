@@ -1,0 +1,77 @@
+# ===========================================================================
+# GitLab CI for the StudentRecordService.
+#
+# This pipeline is part of the "before" picture. Note what it does NOT do:
+#   - it does not run the SOAP characterization tests, because there are none;
+#   - the nightly job skips tests entirely (-DskipTests);
+#   - deploy is a manual button that scp's a WAR onto a named host;
+#   - nothing scans dependencies, and log4j 1.2.17 has been EOL since 2015.
+# ===========================================================================
+
+image: maven:3.6-jdk-8
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dfile.encoding=UTF-8"
+  MAVEN_CLI_OPTS: "-B -ntp"
+
+cache:
+  key: "sis-m2"
+  paths:
+    - .m2/repository
+
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
+build:
+  stage: build
+  script:
+    # wsdl2java runs here. On JDK 8 the pinned cxf-codegen-plugin 3.1.18 works
+    # as written; see docs/LEGACY-SMELLS.md for the modern-JDK override.
+    - mvn $MAVEN_CLI_OPTS -DskipTests compile
+  artifacts:
+    paths:
+      - "*/target/generated-sources"
+    expire_in: 1 day
+
+test:
+  stage: test
+  script:
+    # Three assertions. Two classes. This is the whole safety net.
+    - mvn $MAVEN_CLI_OPTS test
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - "*/target/surefire-reports/TEST-*.xml"
+
+package:
+  stage: package
+  script:
+    - mvn $MAVEN_CLI_OPTS -DskipTests package
+  artifacts:
+    paths:
+      - studentrecord-webapp/target/studentrecord.war
+    expire_in: 1 week
+
+# XXX: the nightly job exists because the test stage used to be flaky against
+# a shared MySQL. Rather than fix the flake, tests were switched off. The
+# nightly has therefore been green and meaningless since 2018.
+nightly:
+  stage: package
+  only:
+    - schedules
+  script:
+    - mvn $MAVEN_CLI_OPTS -DskipTests clean package
+
+deploy:staging:
+  stage: deploy
+  when: manual
+  only:
+    - master
+  script:
+    # TODO: this reimplements half of ansible/deploy.yml, badly.
+    - echo "deploying studentrecord.war to sis-staging-01"
+    - ansible-playbook -i ansible/inventory.ini ansible/deploy.yml -e "target_env=staging"

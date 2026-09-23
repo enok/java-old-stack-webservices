@@ -1,0 +1,12 @@
+# Rendered by ansible/deploy.yml from the deployment vault.
+#
+# XXX: this file IS the authentication system. One shared secret per
+# institution, no expiry, no rotation short of a redeploy, no revocation.
+sis.auth.user.northlake-sis.secret={{ sis_auth_secret_northlake }}
+sis.auth.user.northlake-sis.customer=NORTHLAKE
+
+sis.auth.user.riverton-tibco.secret={{ sis_auth_secret_riverton }}
+sis.auth.user.riverton-tibco.customer=RIVERTON
+
+sis.auth.user.summit-registrar.secret={{ sis_auth_secret_summit }}
+sis.auth.user.summit-registrar.customer=SUMMIT

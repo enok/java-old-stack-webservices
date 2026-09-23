@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SMELL #5a captured on the wire.
+
+  Request was getStudentRequest for studentId N9999999, which does not exist.
+  The service answers HTTP 200 with an EMPTY getStudentResponse. No fault, no
+  fault code, no message. NORTHLAKE's client distinguishes this from "a real
+  student with no holds" by testing for a missing studentDetail element.
+
+  Compare riverton/getAdvisingHolds-notfound-fault.xml, which is a declared
+  fault for the same underlying condition.
+-->
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <sm:getStudentResponse xmlns:sm="http://campusconnect.example.edu/sis/student/messages/v1"/>
+  </soap:Body>
+</soap:Envelope>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  VOLATILE: confirmationId embeds the applied-row count, so replaying the same
+  request against a database in a different state produces a different id.
+  The characterization harness must normalise the trailing count.
+
+  Note also that EnrollmentDao has no transaction: if the second change fails,
+  the first is already committed AND a fault is returned, so the caller retries
+  the whole batch and double-adds the first row.
+-->
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <sm:submitEnrollmentChangeResponse xmlns:sm="http://campusconnect.example.edu/sis/student/messages/v1">
+      <sm:accepted>true</sm:accepted>
+      <sm:confirmationId>CC-RIVERTON-R0200455-202410-2</sm:confirmationId>
+      <sm:message>accepted</sm:message>
+    </sm:submitEnrollmentChangeResponse>
+  </soap:Body>
+</soap:Envelope>

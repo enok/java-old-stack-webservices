@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  JAX-WS external binding file.
+
+  enableWrapperStyle is OFF on purpose. The responses carry several optional
+  top-level children (studentDetail / rivertonStudentDetail / hold*), which
+  would force JAX-WS into javax.xml.ws.Holder out-parameters. In 2014 we turned
+  wrapper style off so the SEI takes and returns the JAXB wrapper beans. That
+  keeps the signatures stable while elements keep getting bolted onto the
+  requests, and it is why the endpoint code reads like DTO plumbing.
+-->
+<jaxws:bindings xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
+                xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                wsdlLocation="StudentRecordService.wsdl"
+                node="wsdl:definitions">
+  <jaxws:enableWrapperStyle>false</jaxws:enableWrapperStyle>
+  <jaxws:enableAsyncMapping>false</jaxws:enableAsyncMapping>
+</jaxws:bindings>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <sm:getStudentResponse xmlns:sm="http://campusconnect.example.edu/sis/student/messages/v1"
+                           xmlns:sc="http://campusconnect.example.edu/sis/student/common/v1">
+      <sm:studentDetail customerCode="NORTHLAKE">
+        <sc:studentId>N0010001</sc:studentId>
+        <sc:lastName>Abernathy</sc:lastName>
+        <sc:firstName>Dana</sc:firstName>
+        <sc:dateOfBirth>1999-04-12</sc:dateOfBirth>
+        <sc:programCode>BSCS</sc:programCode>
+        <sc:enrollmentStatus>A</sc:enrollmentStatus>
+        <sc:campusCode>NL-MAIN</sc:campusCode>
+      </sm:studentDetail>
+    </sm:getStudentResponse>
+  </soap:Body>
+</soap:Envelope>

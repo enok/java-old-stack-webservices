@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  R0200457 has TWO holds in seed.sql: FIN (releasable=0) and ADV
+  (releasable=1). Only ADV appears here.
+
+  HoldMapper.toDetails silently drops non-releasable holds for RIVERTON only.
+  RIVERTON receives the FIN hold by nightly file instead. This behaviour was
+  undocumented until this repository was written down, and it is exactly the
+  kind of thing a characterization test has to capture BEFORE the mappers are
+  consolidated.
+-->
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <sm:getAdvisingHoldsResponse xmlns:sm="http://campusconnect.example.edu/sis/student/messages/v1"
+                                 xmlns:sc="http://campusconnect.example.edu/sis/student/common/v1">
+      <sm:hold>
+        <sc:holdCode>ADV</sc:holdCode>
+        <sc:holdReason>Programme change review</sc:holdReason>
+        <sc:placedOn>02/01/2024</sc:placedOn>
+        <sc:releasable>true</sc:releasable>
+      </sm:hold>
+    </sm:getAdvisingHoldsResponse>
+  </soap:Body>
+</soap:Envelope>

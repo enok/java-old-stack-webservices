@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Header>
+    <cc:CampusConnectAuth xmlns:cc="http://campusconnect.example.edu/sis/auth/v1">
+      <cc:Username>northlake-sis</cc:Username>
+      <cc:SharedSecret>REPLACE_ME_NOT_A_REAL_SECRET</cc:SharedSecret>
+    </cc:CampusConnectAuth>
+  </soap:Header>
+  <soap:Body>
+    <sm:findStudentsByTermRequest xmlns:sm="http://campusconnect.example.edu/sis/student/messages/v1">
+      <sm:customerCode>NORTHLAKE</sm:customerCode>
+      <sm:termCode>202410</sm:termCode>
+      <sm:maxResults>50</sm:maxResults>
+    </sm:findStudentsByTermRequest>
+  </soap:Body>
+</soap:Envelope>

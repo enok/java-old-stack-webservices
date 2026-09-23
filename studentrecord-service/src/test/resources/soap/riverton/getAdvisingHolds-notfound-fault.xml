@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SMELL #5a, the other half.
+
+  Request was getAdvisingHoldsRequest for studentId R9999999, which does not
+  exist. Unlike getStudent (see northlake/getStudent-notfound-response.xml)
+  this operation returns a DECLARED fault with a structured fault body.
+
+  One service, one contract, two opposite answers to "I do not know this
+  student".
+-->
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <soap:Fault>
+      <faultcode>soap:Server</faultcode>
+      <faultstring>no student R9999999 at RIVERTON</faultstring>
+      <detail>
+        <sm:studentServiceFault xmlns:sm="http://campusconnect.example.edu/sis/student/messages/v1"
+                                xmlns:sc="http://campusconnect.example.edu/sis/student/common/v1">
+          <sc:faultCode>SIS-4041</sc:faultCode>
+          <sc:faultMessage>no student R9999999 at RIVERTON</sc:faultMessage>
+          <sc:faultDetail>null</sc:faultDetail>
+        </sm:studentServiceFault>
+      </detail>
+    </soap:Fault>
+  </soap:Body>
+</soap:Envelope>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The root Spring context. Spring 4.3, XML wiring, setter injection, no
+  component scanning and no annotations. Every bean below is a singleton with
+  no lifecycle and no profile.
+
+  XXX: the DAOs get no DataSource. They call the static
+  com.campusconnect.sis.dao.ConnectionFactory directly, so there is nothing to
+  inject and nothing to mock. That is the single biggest obstacle to writing
+  the characterization tests in docs/MODERNIZATION-BACKLOG.md step 1, and it is
+  why step 1 records traffic at the SOAP boundary rather than unit-testing the
+  facade.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="studentDao"    class="com.campusconnect.sis.dao.StudentDao"/>
+  <bean id="holdDao"       class="com.campusconnect.sis.dao.HoldDao"/>
+  <bean id="enrollmentDao" class="com.campusconnect.sis.dao.EnrollmentDao"/>
+  <bean id="rosterDao"     class="com.campusconnect.sis.dao.RosterDao"/>
+
+  <bean id="studentRecordFacade"
+        class="com.campusconnect.sis.service.StudentRecordFacadeImpl">
+    <property name="studentDao"    ref="studentDao"/>
+    <property name="holdDao"       ref="holdDao"/>
+    <property name="enrollmentDao" ref="enrollmentDao"/>
+  </bean>
+
+  <!-- Referenced by cxf-servlet.xml as #studentRecordEndpointImpl. -->
+  <bean id="studentRecordEndpointImpl"
+        class="com.campusconnect.sis.endpoint.StudentRecordEndpointImpl">
+    <property name="facade" ref="studentRecordFacade"/>
+  </bean>
+
+  <bean id="legacyStudentResource"
+        class="com.campusconnect.sis.rest.LegacyStudentResource">
+    <property name="facade" ref="studentRecordFacade"/>
+  </bean>
+
+  <!--
+    TODO: the batch job is declared here but never invoked by the web tier. It
+    is run from cron against the same jar. The bean exists only because
+    somebody added it in 2017 intending to expose a "run now" button.
+  -->
+  <bean id="rosterExportJob" class="com.campusconnect.sis.batch.RosterExportJob">
+    <property name="rosterDao" ref="rosterDao"/>
+  </bean>
+
+</beans>

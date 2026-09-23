@@ -1,0 +1,5 @@
+# Rendered by ansible/deploy.yml. Overwrites the placeholder file packaged in
+# the WAR. Mode 0600, owned by tomcat.
+sis.db.url=jdbc:mysql://{{ sis_db_host | default('sis-db-01.campusconnect.example.edu') }}:3306/campusconnect?useSSL=false&characterEncoding=UTF-8
+sis.db.user={{ sis_db_user | default('sisapp') }}
+sis.db.password={{ sis_db_password }}

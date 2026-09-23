@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SMELL #5b captured on the wire.
+
+  This is what a consumer receives when MySQL is unreachable during
+  submitEnrollmentChange. DataAccessException is UNCHECKED, so it is never
+  caught by StudentRecordEndpointImpl, never converted to the declared
+  StudentServiceFault, and reaches CXF raw. CXF renders it as a generic
+  soap:Server fault whose faultstring is the exception message and whose
+  detail carries the stack trace.
+
+  The faultstring below has been redacted where the real one contains the
+  fully interpolated SQL from StudentDao, including the student identifier.
+  That is an information-disclosure bug on top of an ugly one, and it is the
+  reason "normalise fault handling" appears in the backlog ahead of any
+  framework upgrade.
+-->
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <soap:Fault>
+      <faultcode>soap:Server</faultcode>
+      <faultstring>applyChanges failed after 1 of 2 changes</faultstring>
+      <detail>
+        <ns1:stackTrace xmlns:ns1="http://cxf.apache.org/bindings/xformat">com.campusconnect.sis.dao.DataAccessException: applyChanges failed after 1 of 2 changes
+	at com.campusconnect.sis.dao.EnrollmentDao.applyChanges(EnrollmentDao.java:77)
+	at com.campusconnect.sis.service.StudentRecordFacadeImpl.submitEnrollmentChange(StudentRecordFacadeImpl.java:118)
+	at com.campusconnect.sis.endpoint.StudentRecordEndpointImpl.submitEnrollmentChange(StudentRecordEndpointImpl.java:228)
+	... 48 more
+Caused by: com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure
+	at com.mysql.jdbc.SQLError.createCommunicationsException(SQLError.java:1128)
+	[SQL REDACTED - the real trace contains the interpolated INSERT statement]
+	... 52 more</ns1:stackTrace>
+      </detail>
+    </soap:Fault>
+  </soap:Body>
+</soap:Envelope>

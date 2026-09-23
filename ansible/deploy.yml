@@ -1,0 +1,115 @@
+---
+# ===========================================================================
+# Deploy the StudentRecordService WAR to Tomcat 8.
+#
+# ansible-playbook -i ansible/inventory.ini ansible/deploy.yml -e "target_env=staging"
+#
+# This playbook is where the placeholder secrets in the packaged
+# auth.properties and db.properties are replaced with real values from the
+# deployment vault. That is the whole secret-management story: no vault
+# integration at runtime, no rotation, and a redeploy is the only way to change
+# a credential.
+#
+# XXX: the deploy is a stop, copy, start. There is no rolling restart, no
+# health gate and no rollback other than re-running with an older artifact.
+# Every deploy is a visible outage for all three institutions.
+# ===========================================================================
+- name: Deploy StudentRecordService
+  hosts: "sis_{{ target_env | default('staging') }}"
+  become: yes
+  serial: 1
+
+  vars:
+    war_src: "../studentrecord-webapp/target/studentrecord.war"
+    war_dest: "{{ tomcat_home }}/webapps/studentrecord.war"
+    app_context: studentrecord
+    # TODO: these come from an ansible-vault file that is not in this
+    # repository. The defaults below are the same obviously-fake placeholders
+    # that ship in the WAR, so a deploy without the vault silently deploys a
+    # service that rejects every caller.
+    sis_db_password: "CHANGEME-local-dev-only"
+    sis_auth_secret_northlake: "REPLACE_ME_NOT_A_REAL_SECRET"
+    sis_auth_secret_riverton: "REPLACE_ME_NOT_A_REAL_SECRET"
+    sis_auth_secret_summit: "REPLACE_ME_NOT_A_REAL_SECRET"
+    soap_endpoint_host: "{{ inventory_hostname }}"
+
+  tasks:
+
+    - name: Check the WAR exists on the controller
+      delegate_to: localhost
+      become: no
+      stat:
+        path: "{{ war_src }}"
+      register: war_stat
+
+    - name: Fail early if the WAR was not built
+      fail:
+        msg: "No WAR at {{ war_src }}. Run the build first."
+      when: not war_stat.stat.exists
+
+    - name: Stop Tomcat
+      service:
+        name: "{{ tomcat_service }}"
+        state: stopped
+
+    # XXX: the exploded directory is removed by hand because Tomcat 8 does not
+    # always clean it up, and a stale class from a previous release once served
+    # RIVERTON's traffic for two days.
+    - name: Remove the previously exploded webapp
+      file:
+        path: "{{ tomcat_home }}/webapps/{{ app_context }}"
+        state: absent
+
+    - name: Remove the Tomcat work directory for this context
+      file:
+        path: "{{ tomcat_home }}/work/Catalina/localhost/{{ app_context }}"
+        state: absent
+
+    - name: Copy the WAR
+      copy:
+        src: "{{ war_src }}"
+        dest: "{{ war_dest }}"
+        owner: tomcat
+        group: tomcat
+        mode: "0644"
+
+    - name: Write the real database credentials over the packaged placeholders
+      template:
+        src: templates/db.properties.j2
+        dest: "{{ tomcat_home }}/conf/db.properties"
+        owner: tomcat
+        group: tomcat
+        mode: "0600"
+
+    - name: Write the real shared secrets over the packaged placeholders
+      template:
+        src: templates/auth.properties.j2
+        dest: "{{ tomcat_home }}/conf/auth.properties"
+        owner: tomcat
+        group: tomcat
+        mode: "0600"
+
+    - name: Start Tomcat
+      service:
+        name: "{{ tomcat_service }}"
+        state: started
+
+    # TODO: this waits for the port, not for the application. A WAR that fails
+    # to deploy still satisfies this check, which is how a broken release
+    # reached production in 2019.
+    - name: Wait for the HTTP connector
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 8080
+        delay: 10
+        timeout: 120
+
+    - name: Fetch the published WSDL as a smoke test
+      uri:
+        url: "http://{{ inventory_hostname }}:8080/{{ app_context }}/services/StudentRecordService?wsdl"
+        return_content: no
+        status_code: 200
+      register: wsdl_check
+      retries: 5
+      delay: 10
+      until: wsdl_check is succeeded

@@ -1,0 +1,38 @@
+# Maven
+target/
+*.war
+*.jar
+*.class
+.mvn/
+!maven-wrapper.jar
+
+# Generated sources. NEVER commit these: the WSDL is the source of truth and
+# wsdl2java regenerates them on every build.
+**/generated-sources/
+**/generated-test-sources/
+
+# IDEs of the era, and since
+.classpath
+.project
+.settings/
+*.iml
+*.ipr
+*.iws
+.idea/
+nbproject/
+build/
+
+# Logs
+*.log
+logs/
+catalina.out
+
+# Local overrides. db.properties and auth.properties ARE committed with
+# placeholder values; a local override goes here instead.
+*.local.properties
+db.properties.local
+auth.properties.local
+
+# OS
+.DS_Store
+Thumbs.db

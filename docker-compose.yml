@@ -1,0 +1,65 @@
+# ===========================================================================
+# Local stack for the StudentRecordService.
+#
+# Compose file format v2. Not v3, not Compose Spec: this file is as old as the
+# rest of the repository and is left that way on purpose.
+#
+#   docker-compose run --rm builder     # build the WAR (JDK 8)
+#   docker-compose up -d sis-mysql sis-tomcat
+#   curl http://localhost:8080/studentrecord/services/StudentRecordService?wsdl
+#
+# The "builder" service is the CANONICAL build environment. On JDK 8 the
+# cxf-codegen-plugin 3.1.18 wsdl2java run works as written. See
+# docs/LEGACY-SMELLS.md -> "Sandbox build notes" for the modern-JDK override.
+# ===========================================================================
+version: '2'
+
+services:
+
+  sis-mysql:
+    image: mysql:5.7
+    container_name: sis-mysql
+    environment:
+      # Local development only. Obviously fake.
+      MYSQL_ROOT_PASSWORD: CHANGEME-local-dev-only
+      MYSQL_DATABASE: campusconnect
+      MYSQL_USER: sisapp
+      MYSQL_PASSWORD: CHANGEME-local-dev-only
+    ports:
+      - "3306:3306"
+    volumes:
+      # XXX: schema.sql and seed.sql live inside a Maven module's resources and
+      # are mounted from there. Editing them changes both the container and the
+      # packaged jar. Nobody expects that.
+      - ./studentrecord-dao/src/main/resources/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./studentrecord-dao/src/main/resources/db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    command:
+      - --character-set-server=utf8
+      - --collation-server=utf8_general_ci
+
+  sis-tomcat:
+    image: tomcat:8-jre8
+    container_name: sis-tomcat
+    depends_on:
+      - sis-mysql
+    ports:
+      - "8080:8080"
+    volumes:
+      # The WAR produced by the builder service below.
+      - ./studentrecord-webapp/target/studentrecord.war:/usr/local/tomcat/webapps/studentrecord.war:ro
+    environment:
+      # TODO: 512m was chosen in 2014 and never revisited. The nightly roster
+      # export runs out of heap on the SUMMIT term.
+      CATALINA_OPTS: "-Xms256m -Xmx512m -Dfile.encoding=UTF-8"
+
+  builder:
+    image: maven:3.6-jdk-8
+    container_name: sis-builder
+    working_dir: /src
+    volumes:
+      - .:/src
+      - sis-m2:/root/.m2
+    command: mvn -B clean package
+
+volumes:
+  sis-m2: {}

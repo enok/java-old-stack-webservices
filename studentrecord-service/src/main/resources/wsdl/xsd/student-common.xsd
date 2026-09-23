@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  CampusConnect SIS - common student types.
+  NOTE (2014): this schema grew per-institution instead of staying canonical.
+  See docs/FORKS.md. Do not "clean up" without a consumer impact review.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:sc="http://campusconnect.example.edu/sis/student/common/v1"
+           targetNamespace="http://campusconnect.example.edu/sis/student/common/v1"
+           elementFormDefault="qualified"
+           version="1.0">
+
+  <xs:simpleType name="CustomerCode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NORTHLAKE"/>
+      <xs:enumeration value="RIVERTON"/>
+      <xs:enumeration value="SUMMIT"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="StudentId">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="16"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--
+    XXX: dateOfBirth is xs:string, not xs:date, because RIVERTON sends
+    dd/MM/yyyy and NORTHLAKE sends yyyy-MM-dd. Rather than fix the producers
+    in 2013 we widened the type. Every consumer now re-parses this by hand.
+  -->
+  <xs:complexType name="StudentDetail">
+    <xs:sequence>
+      <xs:element name="studentId"   type="sc:StudentId"/>
+      <xs:element name="lastName"    type="xs:string"/>
+      <xs:element name="firstName"   type="xs:string"/>
+      <xs:element name="dateOfBirth" type="xs:string" minOccurs="0"/>
+      <xs:element name="programCode" type="xs:string" minOccurs="0"/>
+      <xs:element name="enrollmentStatus" type="xs:string" minOccurs="0"/>
+      <xs:element name="campusCode" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="customerCode" type="sc:CustomerCode" use="required"/>
+  </xs:complexType>
+
+  <!--
+    SMELL #1: customer-specific type baked into the published contract.
+    RIVERTON asked for four extra elements in 2014 and we extended the schema
+    rather than adding an extension point. The element order below is also
+    RIVERTON's preferred order, which is NOT the order used in StudentDetail.
+  -->
+  <xs:complexType name="RivertonStudentDetail">
+    <xs:complexContent>
+      <xs:extension base="sc:StudentDetail">
+        <xs:sequence>
+          <xs:element name="rivertonCampusId"     type="xs:string"/>
+          <xs:element name="advisorNetworkId"     type="xs:string" minOccurs="0"/>
+          <xs:element name="residencyIndicator"   type="xs:string" minOccurs="0"/>
+          <xs:element name="legacyBannerPidm"     type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="AdvisingHold">
+    <xs:sequence>
+      <xs:element name="holdCode"    type="xs:string"/>
+      <xs:element name="holdReason"  type="xs:string" minOccurs="0"/>
+      <xs:element name="placedOn"    type="xs:string" minOccurs="0"/>
+      <xs:element name="releasable"  type="xs:boolean" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EnrollmentChange">
+    <xs:sequence>
+      <xs:element name="courseReferenceNumber" type="xs:string"/>
+      <xs:element name="action"                type="xs:string"/>
+      <xs:element name="creditHours"           type="xs:string" minOccurs="0"/>
+      <xs:element name="effectiveDate"         type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StudentServiceFaultType">
+    <xs:sequence>
+      <xs:element name="faultCode"    type="xs:string"/>
+      <xs:element name="faultMessage" type="xs:string"/>
+      <!-- XXX: we leak internal detail here; see SMELL #5 in docs/LEGACY-SMELLS.md -->
+      <xs:element name="faultDetail"  type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

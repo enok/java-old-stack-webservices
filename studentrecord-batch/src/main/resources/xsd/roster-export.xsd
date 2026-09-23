@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Nightly roster export file format.
+
+  This XSD is DELIBERATELY separate from the SOAP contract and is compiled by a
+  second code generator (jaxb2-maven-plugin xjc), so the codebase has two
+  unrelated JAXB toolchains. The roster file duplicates ~70% of
+  sc:StudentDetail with different element names, because it was written by a
+  different team in 2015 and nobody reconciled them.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:rx="http://campusconnect.example.edu/sis/roster/export/v1"
+           targetNamespace="http://campusconnect.example.edu/sis/roster/export/v1"
+           elementFormDefault="qualified"
+           version="1.0">
+
+  <xs:element name="rosterExport">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="header" type="rx:RosterHeader"/>
+        <xs:element name="rosterRow" type="rx:RosterRow" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="footer" type="rx:RosterFooter" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="RosterHeader">
+    <xs:sequence>
+      <xs:element name="institution" type="xs:string"/>
+      <xs:element name="termCode"    type="xs:string"/>
+      <!-- XXX: string, not xs:dateTime, because each institution wanted its own format. -->
+      <xs:element name="generatedOn" type="xs:string"/>
+      <xs:element name="formatVersion" type="xs:string" default="1.0" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RosterRow">
+    <xs:sequence>
+      <xs:element name="sid"        type="xs:string"/>
+      <xs:element name="surname"    type="xs:string"/>
+      <xs:element name="given"      type="xs:string"/>
+      <xs:element name="prog"       type="xs:string" minOccurs="0"/>
+      <xs:element name="stat"       type="xs:string" minOccurs="0"/>
+      <xs:element name="crn"        type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <!-- RIVERTON-only column; empty for the other two institutions. -->
+      <xs:element name="pidm"       type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RosterFooter">
+    <xs:sequence>
+      <xs:element name="rowCount"  type="xs:int"/>
+      <xs:element name="checksum"  type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

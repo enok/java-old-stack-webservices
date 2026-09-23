@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SMELL #2 on the wire.
+
+  Look at summitHoldSummaryXml. It is an xs:string whose content is an XML
+  document, produced by xslt/summit-hold-summary.xsl and then escaped a second
+  time by the SOAP marshaller. SUMMIT's client un-escapes it and re-parses it.
+
+  The information in that string is already present, structurally, in the
+  sm:hold elements immediately above it. It is duplicated because in 2015 it
+  was faster to add a stylesheet than to negotiate a contract change.
+
+  Any change to the stylesheet's whitespace or attribute order is a breaking
+  change to SUMMIT, which is why step 1 of the backlog pins this string exactly.
+-->
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <sm:getAdvisingHoldsResponse xmlns:sm="http://campusconnect.example.edu/sis/student/messages/v1"
+                                 xmlns:sc="http://campusconnect.example.edu/sis/student/common/v1">
+      <sm:hold>
+        <sc:holdCode>ADV</sc:holdCode>
+        <sc:holdReason>Degree audit review</sc:holdReason>
+        <sc:placedOn>01-11-2024</sc:placedOn>
+        <sc:releasable>true</sc:releasable>
+      </sm:hold>
+      <sm:hold>
+        <sc:holdCode>IMM</sc:holdCode>
+        <sc:holdReason>Immunisation record incomplete</sc:holdReason>
+        <sc:placedOn>08-22-2023</sc:placedOn>
+        <sc:releasable>false</sc:releasable>
+      </sm:hold>
+      <sm:summitHoldSummaryXml>&lt;SummitHoldSummary count="2"&gt;&lt;Hold code="ADV" releasable="true"&gt;Degree audit review&lt;/Hold&gt;&lt;Hold code="IMM" releasable="false"&gt;Immunisation record incomplete&lt;/Hold&gt;&lt;/SummitHoldSummary&gt;</sm:summitHoldSummaryXml>
+    </sm:getAdvisingHoldsResponse>
+  </soap:Body>
+</soap:Envelope>

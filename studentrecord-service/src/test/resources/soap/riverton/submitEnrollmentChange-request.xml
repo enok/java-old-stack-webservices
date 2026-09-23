@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Header>
+    <cc:CampusConnectAuth xmlns:cc="http://campusconnect.example.edu/sis/auth/v1">
+      <cc:Username>riverton-tibco</cc:Username>
+      <cc:SharedSecret>REPLACE_ME_NOT_A_REAL_SECRET</cc:SharedSecret>
+    </cc:CampusConnectAuth>
+  </soap:Header>
+  <soap:Body>
+    <sm:submitEnrollmentChangeRequest xmlns:sm="http://campusconnect.example.edu/sis/student/messages/v1"
+                                      xmlns:sc="http://campusconnect.example.edu/sis/student/common/v1">
+      <sm:customerCode>RIVERTON</sm:customerCode>
+      <sm:studentId>R0200455</sm:studentId>
+      <sm:termCode>202410</sm:termCode>
+      <sm:change>
+        <sc:courseReferenceNumber>20901</sc:courseReferenceNumber>
+        <sc:action>ADD</sc:action>
+        <sc:creditHours>3</sc:creditHours>
+        <sc:effectiveDate>15/01/2024</sc:effectiveDate>
+      </sm:change>
+      <sm:change>
+        <sc:courseReferenceNumber>20455</sc:courseReferenceNumber>
+        <sc:action>DROP</sc:action>
+        <sc:effectiveDate>15/01/2024</sc:effectiveDate>
+      </sm:change>
+    </sm:submitEnrollmentChangeRequest>
+  </soap:Body>
+</soap:Envelope>

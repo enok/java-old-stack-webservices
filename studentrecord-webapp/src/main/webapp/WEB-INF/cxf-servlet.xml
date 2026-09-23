@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  CXF endpoint publication. Child of the root Spring context declared in
+  web.xml, so it can reference beans from applicationContext.xml by name.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://cxf.apache.org/jaxws
+         http://cxf.apache.org/schemas/jaxws.xsd
+         http://cxf.apache.org/jaxrs
+         http://cxf.apache.org/schemas/jaxrs.xsd">
+
+  <import resource="classpath:META-INF/cxf/cxf.xml"/>
+
+  <!--
+    The SOAP endpoint. address is relative to the CXFServlet mapping, so the
+    full URL is:
+      http://<host>:8080/studentrecord/services/StudentRecordService
+    and the WSDL is served from ?wsdl on that address.
+
+    wsdlLocation points at the hand-written contract packaged in the WAR, so
+    the WSDL the consumers fetch is byte-for-byte the one in source control
+    rather than one CXF re-generates from the Java. That matters: it is the
+    only reason the published contract has stayed stable through eleven
+    releases.
+  -->
+  <jaxws:endpoint id="studentRecordEndpoint"
+                  implementor="#studentRecordEndpointImpl"
+                  address="/StudentRecordService"
+                  wsdlLocation="classpath:wsdl/StudentRecordService.wsdl"
+                  serviceName="s:StudentRecordService"
+                  endpointName="s:StudentRecordPort"
+                  xmlns:s="http://campusconnect.example.edu/sis/studentrecord/v1">
+    <jaxws:handlers>
+      <!-- The homegrown auth header. See SharedSecretAuthHandler. -->
+      <bean class="com.campusconnect.sis.handler.SharedSecretAuthHandler"/>
+    </jaxws:handlers>
+    <jaxws:properties>
+      <!-- XXX: schema validation is OFF. Turning it on rejects roughly 3% of
+           RIVERTON's live traffic, so it was disabled in 2015 and never
+           revisited. Nobody knows which 3%. -->
+      <entry key="schema-validation-enabled" value="false"/>
+    </jaxws:properties>
+  </jaxws:endpoint>
+
+  <!--
+    The one JAX-RS resource, on the same bus. No handler chain, so no auth.
+      http://<host>:8080/studentrecord/services/rest/students/{customer}/{id}
+  -->
+  <jaxrs:server id="legacyRestServer" address="/rest">
+    <jaxrs:serviceBeans>
+      <ref bean="legacyStudentResource"/>
+    </jaxrs:serviceBeans>
+  </jaxrs:server>
+
+</beans>

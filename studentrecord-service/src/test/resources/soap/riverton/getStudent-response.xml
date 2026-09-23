@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Note against the NORTHLAKE response:
+    - element is rivertonStudentDetail, not studentDetail
+    - dateOfBirth is dd/MM/yyyy, not yyyy-MM-dd
+    - four extra elements after campusCode
+  Same operation, same WSDL, different document.
+-->
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <sm:getStudentResponse xmlns:sm="http://campusconnect.example.edu/sis/student/messages/v1"
+                           xmlns:sc="http://campusconnect.example.edu/sis/student/common/v1">
+      <sm:rivertonStudentDetail customerCode="RIVERTON">
+        <sc:studentId>R0200455</sc:studentId>
+        <sc:lastName>Lindqvist</sc:lastName>
+        <sc:firstName>Sanna</sc:firstName>
+        <sc:dateOfBirth>19/07/1998</sc:dateOfBirth>
+        <sc:programCode>BBA</sc:programCode>
+        <sc:enrollmentStatus>A</sc:enrollmentStatus>
+        <sc:campusCode>RV-CENTRAL</sc:campusCode>
+        <sc:rivertonCampusId>RVC-88120</sc:rivertonCampusId>
+        <sc:advisorNetworkId>slindqvist</sc:advisorNetworkId>
+        <sc:residencyIndicator>IS</sc:residencyIndicator>
+        <sc:legacyBannerPidm>000145522</sc:legacyBannerPidm>
+      </sm:rivertonStudentDetail>
+    </sm:getStudentResponse>
+  </soap:Body>
+</soap:Envelope>

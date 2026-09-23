@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Servlet 3.0 descriptor. Not annotations, not Spring Boot: a web.xml, deployed
+  as a WAR into Tomcat 8 at context root /studentrecord.
+-->
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                             http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0"
+         metadata-complete="true">
+
+  <display-name>CampusConnect StudentRecordService</display-name>
+
+  <!-- Root Spring context: DAOs, facade, endpoint beans. -->
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:applicationContext.xml</param-value>
+  </context-param>
+
+  <context-param>
+    <param-name>log4jConfigLocation</param-name>
+    <param-value>classpath:log4j.properties</param-value>
+  </context-param>
+
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+
+  <!--
+    CXFServlet picks up /WEB-INF/cxf-servlet.xml automatically and builds a
+    child context of the root one above. Both the JAX-WS endpoint and the one
+    JAX-RS resource are published from there, on the same bus.
+  -->
+  <servlet>
+    <servlet-name>CXFServlet</servlet-name>
+    <servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>CXFServlet</servlet-name>
+    <url-pattern>/services/*</url-pattern>
+  </servlet-mapping>
+
+  <!--
+    XXX: no security-constraint. Authentication is the homegrown
+    <cc:CampusConnectAuth> SOAP header, enforced by a JAX-WS handler, which
+    means the JAX-RS path under /services/rest has NO authentication at all.
+    The container is "protected" by a firewall rule on the internal VLAN.
+    See docs/LEGACY-SMELLS.md.
+  -->
+
+  <session-config>
+    <session-timeout>30</session-timeout>
+  </session-config>
+
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+
+</web-app>

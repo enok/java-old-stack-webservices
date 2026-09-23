@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  CampusConnect SIS - request/response wrapper elements.
+  Wrapper style is DISABLED in jaxws-bindings.xml, so each generated SEI method
+  takes the wrapper bean directly. That was a 2014 decision to keep signatures
+  stable while we kept bolting elements onto the requests.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:sm="http://campusconnect.example.edu/sis/student/messages/v1"
+           xmlns:sc="http://campusconnect.example.edu/sis/student/common/v1"
+           targetNamespace="http://campusconnect.example.edu/sis/student/messages/v1"
+           elementFormDefault="qualified"
+           version="1.0">
+
+  <xs:import namespace="http://campusconnect.example.edu/sis/student/common/v1"
+             schemaLocation="student-common.xsd"/>
+
+  <!-- ===================== getStudent ===================== -->
+  <xs:element name="getStudentRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="customerCode" type="sc:CustomerCode"/>
+        <xs:element name="studentId"    type="sc:StudentId"/>
+        <!-- TODO: RIVERTON ignores this flag entirely; NORTHLAKE honours it. -->
+        <xs:element name="includeHolds" type="xs:boolean" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!--
+    SMELL #1 + SMELL #5: the response carries BOTH a canonical studentDetail and
+    a RIVERTON-only rivertonStudentDetail. Exactly one is populated. On
+    "not found" we return this element with neither populated instead of a
+    soap:Fault (see docs/LEGACY-SMELLS.md, smell 5a).
+  -->
+  <xs:element name="getStudentResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="studentDetail"         type="sc:StudentDetail"          minOccurs="0"/>
+        <xs:element name="rivertonStudentDetail" type="sc:RivertonStudentDetail"  minOccurs="0"/>
+        <xs:element name="hold" type="sc:AdvisingHold" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- ================= findStudentsByTerm ================= -->
+  <xs:element name="findStudentsByTermRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="customerCode" type="sc:CustomerCode"/>
+        <xs:element name="termCode"     type="xs:string"/>
+        <xs:element name="programCode"  type="xs:string" minOccurs="0"/>
+        <!-- XXX: unbounded result sets. No paging. Known OOM risk for SUMMIT. -->
+        <xs:element name="maxResults"   type="xs:int" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="findStudentsByTermResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="studentDetail" type="sc:StudentDetail" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="truncated"     type="xs:boolean" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- ============== submitEnrollmentChange =============== -->
+  <xs:element name="submitEnrollmentChangeRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="customerCode" type="sc:CustomerCode"/>
+        <xs:element name="studentId"    type="sc:StudentId"/>
+        <xs:element name="termCode"     type="xs:string"/>
+        <xs:element name="change"       type="sc:EnrollmentChange" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="submitEnrollmentChangeResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="accepted"      type="xs:boolean"/>
+        <xs:element name="confirmationId" type="xs:string" minOccurs="0"/>
+        <xs:element name="message"       type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- ================= getAdvisingHolds ================== -->
+  <xs:element name="getAdvisingHoldsRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="customerCode" type="sc:CustomerCode"/>
+        <xs:element name="studentId"    type="sc:StudentId"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="getAdvisingHoldsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="hold" type="sc:AdvisingHold" minOccurs="0" maxOccurs="unbounded"/>
+        <!--
+          XXX: SUMMIT insisted on a pre-rendered HTML-ish blob here in 2015.
+          It is built by string concatenation in ResponseShaper. See SMELL #2.
+        -->
+        <xs:element name="summitHoldSummaryXml" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- ========= getSummitDegreeAudit (SUMMIT ONLY) ========= -->
+  <!--
+    SMELL #1: an operation that exists in the shared contract but which only one
+    institution ever calls. NORTHLAKE and RIVERTON get a fault if they try.
+  -->
+  <xs:element name="getSummitDegreeAuditRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="customerCode"  type="sc:CustomerCode"/>
+        <xs:element name="studentId"     type="sc:StudentId"/>
+        <xs:element name="auditCatalogYear" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="getSummitDegreeAuditResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="studentId"   type="sc:StudentId"/>
+        <xs:element name="auditXml"    type="xs:string"/>
+        <xs:element name="generatedOn" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- ===================== fault ========================= -->
+  <xs:element name="studentServiceFault" type="sc:StudentServiceFaultType"/>
+
+</xs:schema>
