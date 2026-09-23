@@ -38,6 +38,9 @@
       <xs:element name="programCode" type="xs:string" minOccurs="0"/>
       <xs:element name="enrollmentStatus" type="xs:string" minOccurs="0"/>
       <xs:element name="campusCode" type="xs:string" minOccurs="0"/>
+      <!-- SUMMIT FORK: extra element on the SHARED base type. This is the
+           worst kind of fork: it changes the type every institution uses. -->
+      <xs:element name="summitAdvisorLoad" type="xs:string" minOccurs="0"/>
     </xs:sequence>
     <xs:attribute name="customerCode" type="sc:CustomerCode" use="required"/>
   </xs:complexType>

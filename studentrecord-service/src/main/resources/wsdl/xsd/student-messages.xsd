@@ -135,6 +135,27 @@
     </xs:complexType>
   </xs:element>
 
+  <!-- SUMMIT FORK: not present on master. See docs/FORKS.md. -->
+  <xs:element name="getSummitTranscriptFragmentRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="customerCode" type="sc:CustomerCode"/>
+        <xs:element name="studentId"    type="sc:StudentId"/>
+        <xs:element name="termCode"     type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="getSummitTranscriptFragmentResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="studentId"      type="sc:StudentId"/>
+        <xs:element name="transcriptXml"  type="xs:string"/>
+        <xs:element name="generatedOn"    type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <!-- ===================== fault ========================= -->
   <xs:element name="studentServiceFault" type="sc:StudentServiceFaultType"/>
 

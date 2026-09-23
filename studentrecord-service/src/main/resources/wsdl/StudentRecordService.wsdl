@@ -65,6 +65,14 @@
     <wsdl:part name="parameters" element="sm:getSummitDegreeAuditResponse"/>
   </wsdl:message>
 
+  <!-- SUMMIT FORK -->
+  <wsdl:message name="getSummitTranscriptFragmentRequest">
+    <wsdl:part name="parameters" element="sm:getSummitTranscriptFragmentRequest"/>
+  </wsdl:message>
+  <wsdl:message name="getSummitTranscriptFragmentResponse">
+    <wsdl:part name="parameters" element="sm:getSummitTranscriptFragmentResponse"/>
+  </wsdl:message>
+
   <wsdl:message name="StudentServiceFault">
     <wsdl:part name="fault" element="sm:studentServiceFault"/>
   </wsdl:message>
@@ -105,6 +113,13 @@
       <wsdl:input  name="getSummitDegreeAuditRequest"  message="tns:getSummitDegreeAuditRequest"/>
       <wsdl:output name="getSummitDegreeAuditResponse" message="tns:getSummitDegreeAuditResponse"/>
       <wsdl:fault  name="StudentServiceFault"          message="tns:StudentServiceFault"/>
+    </wsdl:operation>
+
+    <!-- SUMMIT FORK: an operation that exists only on this branch. -->
+    <wsdl:operation name="getSummitTranscriptFragment">
+      <wsdl:input  name="getSummitTranscriptFragmentRequest"  message="tns:getSummitTranscriptFragmentRequest"/>
+      <wsdl:output name="getSummitTranscriptFragmentResponse" message="tns:getSummitTranscriptFragmentResponse"/>
+      <wsdl:fault  name="StudentServiceFault"                 message="tns:StudentServiceFault"/>
     </wsdl:operation>
 
   </wsdl:portType>
@@ -156,6 +171,16 @@
       <soap:operation soapAction="urn:campusconnect:sis:getSummitDegreeAudit" style="document"/>
       <wsdl:input  name="getSummitDegreeAuditRequest"><soap:body use="literal"/></wsdl:input>
       <wsdl:output name="getSummitDegreeAuditResponse"><soap:body use="literal"/></wsdl:output>
+      <wsdl:fault  name="StudentServiceFault">
+        <soap:fault name="StudentServiceFault" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+
+    <!-- SUMMIT FORK -->
+    <wsdl:operation name="getSummitTranscriptFragment">
+      <soap:operation soapAction="urn:campusconnect:sis:getSummitTranscriptFragment" style="document"/>
+      <wsdl:input  name="getSummitTranscriptFragmentRequest"><soap:body use="literal"/></wsdl:input>
+      <wsdl:output name="getSummitTranscriptFragmentResponse"><soap:body use="literal"/></wsdl:output>
       <wsdl:fault  name="StudentServiceFault">
         <soap:fault name="StudentServiceFault" use="literal"/>
       </wsdl:fault>

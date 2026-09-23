@@ -34,6 +34,8 @@ public class SummitStudentMapper {
         // XXX: SUMMIT treats campusCode as the catalog year. Yes, really.
         // A field means a different thing depending on who is reading it.
         d.setCampusCode(s.getSummitCatalogYear());
+        // SUMMIT FORK: extra field on the shared base type.
+        d.setSummitAdvisorLoad(s.getProgramCode());
 
         try {
             d.setCustomerCode(CustomerCode.fromValue(s.getCustomerCode()));

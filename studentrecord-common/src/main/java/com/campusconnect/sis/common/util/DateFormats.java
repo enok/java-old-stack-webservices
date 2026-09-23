@@ -23,7 +23,7 @@ public final class DateFormats {
     private static final Logger LOG = Logger.getLogger(DateFormats.class);
 
     /** NORTHLAKE and the canonical model: yyyy-MM-dd. */
-    public static final SimpleDateFormat ISO = new SimpleDateFormat("yyyy-MM-dd");
+    public static final SimpleDateFormat ISO = new SimpleDateFormat("MM-dd-yyyy"); // SUMMIT FORK: the "canonical" format is theirs on this branch
 
     /** RIVERTON: dd/MM/yyyy. Their TIBCO flow rejects anything else. */
     public static final SimpleDateFormat RIVERTON = new SimpleDateFormat("dd/MM/yyyy");
